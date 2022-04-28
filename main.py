@@ -29,11 +29,11 @@ lctr1 = 0.9*lc/Zc
 
 ql1n = Ma*np.sqrt(R*T1)/(p1*A1*np.sin(alfa)*Kk)
 
-l1n = 2/np.pi*np.arcsin(1-(1-ql1n**(np.pi/2*(2/(k+1))**(1/(k-1)))))
+l1n = 2/np.pi*np.arcsin(1-(1-ql1n)**(np.pi/2*(2/(k+1))**(1/(k-1))))
 
 C1an = l1n*np.sin(alfa)*np.sqrt(2*k/(k+1)*R*T1)
 
-U1m = D1m/2*np.pi*nn/30
+U1m = D1m*np.pi*nn/30/2
 
 C1anb = C1an/U1m
 
@@ -82,35 +82,37 @@ Map = A1*np.sin(alfa)*q(l1p)*Kk/np.sqrt(R)
 
 def plot_constant_n():
     
-    def solve_equations(z):
+    def solve_equations(z, pict, nct):
         C1ab = z[0]
         etact = z[1]
         F = np.empty(2)
-        F[0] = C1anb/(1-lunb)*(1-0.9*cp/(Zc*etact)*(60/(np.pi*D1m))**2*((pict1**((k-1)/k)-1)/((nct1/np.sqrt(T1))**2))) - C1ab
-        F[1] =  etac*(1-Keta*(C1ab/C1anb-1)**2)*(2-nct1/nn)*nct1/nn - etact
+        F[0] = C1anb/(1-lunb)*(1-0.9*cp/(Zc*etact)*(60/(np.pi*D1m))**2*
+                ((pict**((k-1)/k)-1)/((nct/np.sqrt(T1))**2))) - C1ab
+        F[1] =  etac*(1-Keta*(C1ab/C1anb-1)**2)*(2-nct/nn)*nct/nn - etact
         return F
 
     picn = np.array([np.linspace(picp[0], picp[0], 10), np.linspace(picp[0], picp[1], 10), 
-                    np.linspace(picp[0], picp[2], 10), np.linspace(picp[0], picp[3], 10), 
-                    np.linspace(picp[1], picp[4], 10), np.linspace(picp[2], picp[5], 10), 
-                    np.linspace(picp[4], picp[6], 10)])
-    i = 0
+                    np.linspace(picp[1], picp[2], 10), np.linspace(picp[2], picp[3], 10), 
+                    np.linspace(picp[3], picp[4], 10), np.linspace(picp[4], picp[5], 10), 
+                    np.linspace(picp[5], picp[6], 10)])
 
-    for nct1 in n:
-        MaT1p1 = []
-        pict = picn[i]
-
-        for x in pict:
-            pict1 = x
+    i, j = 0, 0
+    MaT1p1 = []
+    
+    while(i < 7):
+        if(j < 10):
             zGuess = np.array([1,1])
-            z = fsolve(solve_equations, zGuess)
-            l1 = z[0]*np.sqrt((k+1)/2/k/R)*np.pi*D1m*nct1/60/np.sqrt(T1)
+            z = fsolve(solve_equations, zGuess, (picn[i][j], n[i]))
+            l1 = z[0]*np.sqrt((k+1)/2/k/R)*np.pi*D1m*n[i]/60/np.sqrt(T1)
             to_append = A1*np.sin(alfa)*q(l1)*Kk/np.sqrt(R)
             MaT1p1.append(to_append)
-
-        plt.plot(MaT1p1, pict, label="n = " + str(int(nct1)) + " rpm")
-        i += 1
-
+            j += 1
+        else:
+            plt.plot(MaT1p1, picn[i], label="n = " + str(int(n[i])) + " rpm")
+            j = 0
+            i += 1
+            MaT1p1 = []
+            
 
 # Linia regimurilor optime
 
@@ -121,6 +123,7 @@ plt.xlabel("Map")
 plt.ylabel("picp")
 plt.title("Caracteristica compresorului axial")
 plt.grid()
-plt.legend()
+plt.legend(bbox_to_anchor = (1.01, 1))
+plt.savefig("curbe_turatie_constanta_1.png", bbox_inches="tight", dpi=300)
 plt.show()
 
