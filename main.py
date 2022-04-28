@@ -4,14 +4,14 @@ from scipy.optimize import fsolve
 
 # Date de intrare
 
-Ma = 40 # kg/s
-D1m = 0.282 # m
-A1 = 0.185 # m^2
-Zc = 10 # nr. de trepte
-nn = 14500 # rpm
+Ma = 22.8 # kg/s
+D1m = 0.409 # m
+A1 = 0.303 # m^2
+Zc = 9 # nr. de trepte
+nn = 8400 # rpm
 alfa = 90 * np.pi/180 # rad
-etac = 0.87
-pic = 8
+etac = 0.85
+pic = 6.8
 
 p1 = 101325 # Pa
 T1 = 288 # K
@@ -57,10 +57,12 @@ Keta = (1/lunb-1)**2
 
 Xcp = (Keta*(1+2*K1)-np.sqrt(Keta**2*(1+2*K1)**2-3*K1*Keta*(2*Keta-K1+K1*Keta)))/(3*K1*Keta)
 
+if Xcp < 0:
+    Xcp = (2*K1+1-np.sqrt(4*K1-2*K1+1))/3/K1
+
 C1apb = Xcp*C1anb
 
 # Generarea liniei de pompaj
-
 
 n = np.array([0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1]) * nn
 
@@ -88,7 +90,10 @@ def plot_constant_n():
         F[1] =  etac*(1-Keta*(C1ab/C1anb-1)**2)*(2-nct1/nn)*nct1/nn - etact
         return F
 
-    picn = np.array([np.linspace(picp[0], picp[0], 10),np.linspace(picp[0], picp[1], 10),np.linspace(picp[0], picp[2], 10), np.linspace(picp[0], picp[3], 10), np.linspace(picp[1], picp[4], 10), np.linspace(picp[2], picp[5], 10), np.linspace(picp[4], picp[6], 10)])
+    picn = np.array([np.linspace(picp[0], picp[0], 10), np.linspace(picp[0], picp[1], 10), 
+                    np.linspace(picp[0], picp[2], 10), np.linspace(picp[0], picp[3], 10), 
+                    np.linspace(picp[1], picp[4], 10), np.linspace(picp[2], picp[5], 10), 
+                    np.linspace(picp[4], picp[6], 10)])
     i = 0
 
     for nct1 in n:
@@ -103,19 +108,18 @@ def plot_constant_n():
             to_append = A1*np.sin(alfa)*q(l1)*Kk/np.sqrt(R)
             MaT1p1.append(to_append)
 
-        plt.plot(MaT1p1, pict, label="n = " + str(int(nct1)))
+        plt.plot(MaT1p1, pict, label="n = " + str(int(nct1)) + " rpm")
         i += 1
+
 
 # Linia regimurilor optime
 
-
-
 plt.figure(figsize=(8, 5))
-plt.plot(Map, picp, label="linia de pompaj")
+plt.plot(Map, picp, label="Linia de pompaj")
 plot_constant_n()
-plt.xlabel("Map [kg/s]")
+plt.xlabel("Map")
 plt.ylabel("picp")
-plt.title("Linia de pompaj")
+plt.title("Caracteristica compresorului axial")
 plt.grid()
 plt.legend()
 plt.show()
